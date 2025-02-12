@@ -1,0 +1,4 @@
+include:
+  - project: devops/automation/ci
+    ref: master
+    file: ci.yml
