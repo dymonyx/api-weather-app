@@ -33,9 +33,10 @@ class WeatherService:
     def calculate_statistics(self, temperatures: List[float]) -> dict:
         temperatures.sort()
         length = len(temperatures)
-        avg = sum(temperatures) / length
+        avg = round(sum(temperatures) / length, 2)
         median = (
-            (temperatures[length // 2] + temperatures[length // 2 - 1]) / 2
+            round((temperatures[length // 2] +
+                  temperatures[length // 2 - 1]) / 2, 2)
             if length % 2 == 0
             else temperatures[length // 2]
         )
