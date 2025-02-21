@@ -33,7 +33,7 @@ Retrieves weather statistics for a given city and date range.
 
 #### Example Request:
 ```bash
-curl 'http://127.0.0.1:8000/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
+curl 'http://0.0.0.0:8000/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
 
 ```
 
