@@ -1,8 +1,8 @@
 import os
-from fastapi import FastAPI
-from typing import List
+from fastapi import FastAPI, HTTPException, Query
+from typing import List, Dict, Any
 import requests
-
+from datetime import datetime, timedelta
 
 API_KEY = os.getenv("API_KEY", "unknown")
 BASE_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
@@ -57,3 +57,24 @@ def get_info():
         "service": "weather",
         "author": "y.lapshina"
     }
+
+
+@app.get("/info/weather")
+def get_weather(
+        city: str = Query(...),
+        date_from: str = Query(
+            default=(datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")),
+        date_to: str = Query(default=datetime.today().strftime("%Y-%m-%d"))) -> Dict[str, Any]:
+    try:
+        data = weather_service.get_weather_data(city, date_from, date_to)
+        temperatures = weather_service.extract_temperatures(data)
+        stats = weather_service.calculate_statistics(temperatures)
+
+        return {
+            "service": "weather",
+            "data": {
+                "temperature_c": stats
+            },
+        }
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Weather API error: {e}")
