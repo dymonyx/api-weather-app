@@ -3,9 +3,11 @@ from fastapi import FastAPI, HTTPException, Query
 from typing import List, Dict, Any
 import requests
 from datetime import datetime, timedelta
+import uvicorn
 
 API_KEY = os.getenv("API_KEY", "unknown")
 BASE_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
+PORT = int(os.getenv("PORT", 8000))
 
 
 class WeatherService:
@@ -78,3 +80,7 @@ def get_weather(
         }
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Weather API error: {e}")
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
