@@ -1,11 +1,15 @@
 import os
+import logging
 from fastapi import FastAPI, HTTPException, Query
 from typing import List, Dict, Any
 import requests
 from datetime import datetime, timedelta
 import uvicorn
 
-API_KEY = os.getenv("API_KEY", "unknown")
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
+
+API_KEY = os.getenv("API_KEY", None)
 BASE_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
 PORT = int(os.getenv("PORT", 8000))
 
@@ -31,14 +35,13 @@ class WeatherService:
         return temps
 
     def calculate_statistics(self, temperatures: List[float]) -> dict:
-        temperatures.sort()
         length = len(temperatures)
         avg = round(sum(temperatures) / length, 2)
         median = (
-            round((temperatures[length // 2] +
-                  temperatures[length // 2 - 1]) / 2, 2)
+            round((sorted(temperatures)[length // 2] +
+                  sorted(temperatures)[length // 2 - 1]) / 2, 2)
             if length % 2 == 0
-            else temperatures[length // 2]
+            else sorted(temperatures)[length // 2]
         )
 
         return {
@@ -56,7 +59,7 @@ weather_service = WeatherService(api_key=API_KEY, base_url=BASE_URL)
 @app.get("/info")
 def get_info():
     return {
-        "version": os.getenv("VERSION", "unknown"),
+        "version": os.getenv("VERSION", None),
         "service": "weather",
         "author": "y.lapshina"
     }
@@ -66,9 +69,10 @@ def get_info():
 def get_weather(
         city: str = Query(...),
         date_from: str = Query(
-            default=(datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")),
-        date_to: str = Query(default=datetime.today().strftime("%Y-%m-%d"))) -> Dict[str, Any]:
+            default_factory=lambda: (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")),
+        date_to: str = Query(default_factory=lambda: datetime.today().strftime("%Y-%m-%d"))) -> Dict[str, Any]:
     try:
+
         data = weather_service.get_weather_data(city, date_from, date_to)
         temperatures = weather_service.extract_temperatures(data)
         stats = weather_service.calculate_statistics(temperatures)
@@ -80,7 +84,10 @@ def get_weather(
             },
         }
     except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Weather API error: {e}")
+        logger.error(
+            f"Error get weather data: {e}, city: {city}, date_from: {date_from}, date_to: {date_to}")
+        raise HTTPException(
+            status_code=500, detail="Internal server error.")
 
 
 if __name__ == "__main__":
