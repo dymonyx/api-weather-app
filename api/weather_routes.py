@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Any, Dict
 from fastapi import APIRouter, HTTPException, Query
 import requests
@@ -24,9 +24,9 @@ def get_info():
 @weather_router.get("/info/weather")
 def get_weather(
         city: str = Query(...),
-        date_from: str = Query(
+        date_from: date = Query(
             default_factory=lambda: (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")),
-        date_to: str = Query(default_factory=lambda: datetime.today().strftime("%Y-%m-%d"))) -> Dict[str, Any]:
+        date_to: date = Query(default_factory=lambda: datetime.today().strftime("%Y-%m-%d"))) -> Dict[str, Any]:
     try:
 
         data = weather_service.get_weather_data(city, date_from, date_to)

@@ -28,12 +28,14 @@ Retrieves weather statistics for a given city and date range.
 
 #### Query Parameters:
 - `city` (str, required): Country, city, address or coordinates.
-- `date_from` (str, optional): Start date (default: yesterday).
-- `date_to` (str, optional): End date (default: today).
+- `date_from` (date*, optional): Start date (default: yesterday).
+- `date_to` (date*, optional): End date (default: today).
+
+*class from datetime
 
 #### Example Request:
 ```bash
-curl 'http://0.0.0.0:8000/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
+curl 'http://localhost:8000/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
 
 ```
 
