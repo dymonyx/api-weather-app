@@ -1,0 +1,10 @@
+services:
+  app:
+    image: api-weather
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      - API_KEY=${API_KEY}
+      - PORT=${PORT}
+      - VERSION=${VERSION}
+    restart: unless-stopped
