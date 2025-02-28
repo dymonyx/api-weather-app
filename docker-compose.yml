@@ -1,6 +1,6 @@
 services:
   app:
-    image: api-weather
+    image: agoneek/api-weather:0.1.0
     ports:
       - ${PORT}:${PORT}
     environment:
