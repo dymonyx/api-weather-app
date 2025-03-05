@@ -45,7 +45,7 @@ curl 'http://localhost:8000/info/weather?city=Saint-Petersburg&date_from=2024-02
   "service": "weather",
   "data": {
     "temperature_c": {
-      "average": -4.120833333333334,
+      "average": -4.12,
       "median": -3,
       "min": -11,
       "max": -0.9
@@ -54,7 +54,7 @@ curl 'http://localhost:8000/info/weather?city=Saint-Petersburg&date_from=2024-02
 }
 ```
 
-## **Requirements**
+## Requirements
 - Python 3.12
 - `fastapi`, `Requests`
 
@@ -63,3 +63,6 @@ curl 'http://localhost:8000/info/weather?city=Saint-Petersburg&date_from=2024-02
 - `API_KEY`: The API key for Visual Crossing Weather API (required).
 - `VERSION`: Application version (optional).
 - `PORT`: Application port.
+
+## Docker image publication
+[agoneek/api-weather](https://hub.docker.com/repository/docker/agoneek/api-weather/general)
