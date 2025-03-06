@@ -3,8 +3,9 @@ This document explains how to set up Jenkins on a virtual machine, configure cre
 
 ### Installing Jenkins on a Virtual Machine
 #### Step 1: Update System and Install Java 17
-`sudo apt update
-sudo apt install -y openjdk-17-jdk`
+`sudo apt update`
+
+`sudo apt install -y openjdk-17-jdk`
 
 #### Step 2: Add Jenkins Repository and Install Jenkins
 ```sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
@@ -12,8 +13,10 @@ sudo apt install -y openjdk-17-jdk`
 echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update
-sudo apt-get install jenkins```
+```
+`sudo apt-get update`
+
+`sudo apt-get install jenkins`
 
 #### Step 3: Check Jenkins service status and get the initial admin password
 `sudo systemctl status jenkins`
