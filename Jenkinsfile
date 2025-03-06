@@ -2,9 +2,13 @@ node {
     stage('Checkout') {
         checkout scm
     }
+    stage('Check Workspace') {
+        sh 'pwd'
+        sh 'ls -la'
+    }
     stage('Dockerfile Lint') {
         def hadolintResult = sh(
-            script: 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/app/ | tee -a hadolint_lint.txt',
+            script: 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/ | tee -a hadolint_lint.txt',
             returnStatus: true
         )
         if (hadolintResult != 0) {
