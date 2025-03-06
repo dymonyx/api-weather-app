@@ -17,12 +17,12 @@ node {
 
     stage('Dockerfile Push') {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-            sh '''
+            sh(script: '''
                 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                 docker push agoneek/api-weather:latest
                 docker logout
                 rm /var/lib/jenkins/.docker/config.json
-            '''
+            ''', returnStatus: true)
             }
     }
     stage('Dockerfile Pull') {
