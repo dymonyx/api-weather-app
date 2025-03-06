@@ -19,12 +19,13 @@ node {
 
     stage('Dockerfile Push') {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-        sh '''
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            docker push agoneek/api-weather:latest
-            docker logout
-        '''
-        }
+            sh '''
+                echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                docker push agoneek/api-weather:latest
+                docker logout
+                sh 'rm -f ~/.docker/config.json'
+            '''
+            }
     }
     stage('Dockerfile Pull') {
         sh 'docker image pull agoneek/api-weather:latest'
