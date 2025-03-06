@@ -23,7 +23,7 @@ node {
                 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                 docker push agoneek/api-weather:latest
                 docker logout
-                sh 'rm -f ~/.docker/config.json'
+                rm /var/lib/jenkins/.docker/config.json
             '''
             }
     }
