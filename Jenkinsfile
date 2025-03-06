@@ -3,10 +3,8 @@ node {
         checkout scm
     }
     stage('Dockerfile Lint') {
-        def hadolintResult = sh(
-            script: 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/Dockerfile | tee -a hadolint_lint.txt',
-            returnStatus: true
-        )
+        sh 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/Dockerfile | tee hadolint_lint.txt'
+        def hadolintResult = sh(script: '[[ -s hadolint_lint.txt ]]', returnStatus: true)
         if (hadolintResult != 0) {
             currentBuild.result = 'UNSTABLE'
             archiveArtifacts artifacts: 'hadolint_lint.txt', allowEmptyArchive: true
