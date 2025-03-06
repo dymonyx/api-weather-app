@@ -4,7 +4,7 @@ node {
     }
     stage('Dockerfile Lint') {
         def hadolintResult = sh(
-            script: 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/* | tee -a hadolint_lint.txt',
+            script: 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/app/ | tee -a hadolint_lint.txt',
             returnStatus: true
         )
         if (hadolintResult != 0) {
