@@ -105,6 +105,7 @@ Gitlab integration with Jenkins.
 ![img12](Jenkins_doc/img/image12.png)
 
 ### Helpful Links
+- [dockerhub image agoneek/api-weather](https://hub.docker.com/r/agoneek/api-weather/tags)
 - [building with docker using Jenkins](https://www.liatrio.com/resources/blog/building-with-docker-using-jenkins-pipelines)
 - [linting dockerfiles in Jenkins](https://itobey.dev/linting-dockerfiles-in-jenkins-pipelines-with-hadolint/)
 - [hadolint integration in Jenkins](https://github.com/hadolint/hadolint/blob/master/docs/INTEGRATION.md)
