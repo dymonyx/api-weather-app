@@ -7,13 +7,13 @@ This document explains how to set up Jenkins on a virtual machine, configure cre
 sudo apt install -y openjdk-17-jdk`
 
 #### Step 2: Add Jenkins Repository and Install Jenkins
-`sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+```sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
 echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
 sudo apt-get update
-sudo apt-get install jenkins`
+sudo apt-get install jenkins```
 
 #### Step 3: Check Jenkins service status and get the initial admin password
 `sudo systemctl status jenkins`
@@ -25,11 +25,10 @@ Add dockerhub credential.
 ![img1](Jenkins_doc/img/image1.png)
 
 ### Creating a Jenkins Pipeline and Integrating with GitLab
-Jenkins Dashboard → Click New Item → Multibranch Pipeline.
+Jenkins Dashboard → Click New Item → Multibranch Pipeline. Name pipeline (e.g., api-weather), and click OK.
 
 ![img2](Jenkins_doc/img/image2.png)
 
-Name pipeline (e.g., api-weather), and click OK.
 Conncet to your GitLab project URL (create some tokens).
 
 ![img3](Jenkins_doc/img/image3.png)
@@ -71,11 +70,11 @@ Stage view.
 
 ![img4](Jenkins_doc/img/image4.png)
 
-Successful Job passed all the stages.
+Successful Job has mark ✅.
 
 ![img5](Jenkins_doc/img/image5.png)
 
-Pipeline overview.
+Pipeline overview. Successful Job passed all the stages.
 
 ![img6](Jenkins_doc/img/image6.png)
 ### Example of an Unstable Job
