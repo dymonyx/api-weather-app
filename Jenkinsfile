@@ -1,4 +1,7 @@
 node {
+    stage('Checkout') {
+        checkout scm
+    }
     stage('Dockerfile Lint') {
         def hadolintResult = sh(
             script: 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/* | tee -a hadolint_lint.txt',
