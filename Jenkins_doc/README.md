@@ -57,18 +57,24 @@ node {
     }
     stage('Dockerfile Push') {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-            sh '''
+            sh(script: '''
                 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                 docker push agoneek/api-weather:latest
                 docker logout
                 rm /var/lib/jenkins/.docker/config.json
-            '''
-            }
-    }
-    stage('Dockerfile Pull') {
-        sh 'docker image pull agoneek/api-weather:latest'
+            ''', returnStatus: true)
+        }
+        script {
+            currentBuild.displayName = 'api-weather/agoneek Dockerfile.'
+            currentBuild.description = 'Link of image in DockerHub: <br> ' +
+            "<a href='https://hub.docker.com/r/agoneek/api-weather' target='_blank'>" +
+            'DockerHub: agoneek/api-weather</a><br>' +
+            'Command for pulling latest image: <br> ' +
+            '<code>docker pull agoneek/api-weather:latest</code>'
+        }
     }
 }
+
 ```
 ### Example of a Successful Job
 Stage view.
@@ -114,3 +120,4 @@ Gitlab integration with Jenkins.
 - [building with docker using Jenkins](https://www.liatrio.com/resources/blog/building-with-docker-using-jenkins-pipelines)
 - [linting dockerfiles in Jenkins](https://itobey.dev/linting-dockerfiles-in-jenkins-pipelines-with-hadolint/)
 - [hadolint integration in Jenkins](https://github.com/hadolint/hadolint/blob/master/docs/INTEGRATION.md)
+- [currentBuild description in Jenkins](https://stackoverflow.com/questions/43639099/set-the-build-name-and-description-from-a-jenkins-declarative-pipeline)
