@@ -1,17 +1,30 @@
 ---
+- name: Ensure existance GPG-key
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  register: k8s_key_stat
+
 - name: Ensure /etc/apt/keyrings directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: "0755"
 
-- name: Load GPG-key
-  ansible.builtin.get_url:
-    url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/Release.gpg"
-    dest: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    mode: "0644"
+- name: Add k8s project GPG-key
+  when: not k8s_key_stat.stat.exists
+  block:
+    - name: Load GPG-key
+      ansible.builtin.get_url:
+        url: "https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/Release.key"
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+        mode: "0644"
 
-- name: De-armor the GPG key
-  ansible.builtin.command:
-    cmd: "gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/kubernetes-apt-keyring.gpg"
-    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - name: Dearmor the GPG key
+      ansible.builtin.command:
+        cmd: "gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/kubernetes-apt-keyring.asc"
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Remove the temporary ASCII GPG key
+      ansible.builtin.file:
+        path: /etc/apt/keyrings/cri-o-apt-keyring.asc
+        state: absent
