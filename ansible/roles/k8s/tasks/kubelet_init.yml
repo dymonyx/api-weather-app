@@ -3,3 +3,4 @@
   ansible.builtin.command: kubeadm init
   args:
     creates: /etc/kubernetes/admin.conf
+  when: inventory_hostname == "node_1"
