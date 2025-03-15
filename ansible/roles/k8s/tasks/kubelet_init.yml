@@ -1,0 +1,5 @@
+---
+- name: Initialize Kubernetes cluster using kubeadm
+  ansible.builtin.command: kubeadm init
+  args:
+    creates: /etc/kubernetes/admin.conf
