@@ -1,0 +1,8 @@
+---
+- name: Add  k8s repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    content: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/ /"
+    state: present
+    mode: "0644"
+# отличаются для крио и к8с!!!!! посмотреть доки
