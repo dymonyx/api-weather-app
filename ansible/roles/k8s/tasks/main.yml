@@ -15,4 +15,4 @@
   ansible.builtin.import_tasks: kubelet_start.yml
 
 - name: Initialize Kubernetes cluster using kubeadm
-  ansible.builtin.import_tasks: kubelet_init.yml
+  ansible.builtin.import_tasks: kubeadm_init.yml
