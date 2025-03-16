@@ -1,5 +1,5 @@
 ---
-- name: Install dependencies
+- name: Ensure dependencies are installed
   ansible.builtin.apt:
     name: "{{ item }}"
     update_cache: true
