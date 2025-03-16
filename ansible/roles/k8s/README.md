@@ -32,7 +32,7 @@ Dependencies
 Special Tasks
 -------------
 
-This role includes a task that runs kubeadm init only on the first node to initialize the Kubernetes cluster - `kubeadm-_init`.
+This role includes a task that runs kubeadm init only on the first node to initialize the Kubernetes cluster - `kubeadm_init`.
 
 Example Playbook
 ----------------
