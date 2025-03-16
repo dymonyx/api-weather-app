@@ -23,6 +23,7 @@
       ansible.builtin.command:
         cmd: "gpg --dearmor -o {{ k8s_apt_key_gpg_path }} {{ k8s_apt_key_asc_path }}"
         creates: "{{ k8s_apt_key_gpg_path }}"
+
     - name: Remove the temporary ASCII GPG key
       ansible.builtin.file:
         path: "{{ k8s_apt_key_asc_path }}"
