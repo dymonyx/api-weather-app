@@ -31,5 +31,5 @@
 
     - name: Remove the temporary ASCII GPG key
       ansible.builtin.file:
-        path: /etc/apt/keyrings/cri-o-apt-keyring.asc
+        path: "{{ crio_apt_key_asc_path }}"
         state: absent
