@@ -1,0 +1,30 @@
+---
+- name: Ensure existance GPG-key
+  ansible.builtin.stat:
+    path: "{{ crio_apt_key_gpg_path }}"
+  register: cri_o_key_stat
+
+- name: Ensure keyrings directory exists
+  ansible.builtin.file:
+    path: "{{ crio_keyrings_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Add CRI-O project GPG-key
+  when: not cri_o_key_stat.stat.exists
+  block:
+    - name: Load GPG-key
+      ansible.builtin.get_url:
+        url: "{{ crio_gpg_key }}"
+        dest: "{{ crio_apt_key_asc_path }}"
+        mode: "0644"
+
+    - name: Dearmor GPG key
+      ansible.builtin.command:
+        cmd: "gpg --dearmor -o {{ crio_apt_key_gpg_path }} {{ crio_apt_key_asc_path }}"
+        creates: "{{ crio_apt_key_gpg_path }}"
+
+    - name: Remove the temporary ASCII GPG key
+      ansible.builtin.file:
+        path: "{{ crio_apt_key_asc_path }}"
+        state: absent

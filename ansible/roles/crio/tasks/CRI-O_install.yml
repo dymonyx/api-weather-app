@@ -1,0 +1,6 @@
+---
+- name: Install CRI-O
+  ansible.builtin.apt:
+    name: cri-o
+    state: present
+    update_cache: true

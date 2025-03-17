@@ -1,0 +1,9 @@
+---
+- name: Remove swapfile from /etc/fstab and disable swap
+  ansible.builtin.import_tasks: swap_off.yml
+
+- name: Load kernel module br_netfilter
+  ansible.builtin.import_tasks: modprobe.yml
+
+- name: Enable IP forwarding
+  ansible.builtin.import_tasks: ip_forwarding.yml

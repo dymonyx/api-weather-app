@@ -1,0 +1,7 @@
+---
+- name: Add CRI-O repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ crio_apt_key_gpg_path }}] {{ crio_repo }} /"
+    filename: "cri-o.list"
+    state: present
+    update_cache: true

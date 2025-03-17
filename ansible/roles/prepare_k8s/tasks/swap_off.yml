@@ -1,0 +1,17 @@
+---
+- name: Remove swapfile from /etc/fstab
+  ansible.posix.mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: Check if swap is enabled
+  ansible.builtin.command: swapon --summary
+  register: swap_status
+  changed_when: false
+  check_mode: false
+
+- name: Disable swap if enabled
+  ansible.builtin.command: swapoff -a
+  when: swap_status.stdout != ''
+  changed_when: true

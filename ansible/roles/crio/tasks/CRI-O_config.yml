@@ -1,0 +1,13 @@
+- name: Ensure CRI-O config exist
+  ansible.builtin.shell:
+    cmd: "set -o pipefail crio config | tee {{ crio_config_path }} > /dev/null"
+    creates: "{{ crio_config_path }}"
+  notify: Restart CRI-O service
+
+- name: Ensure correct permissions on crio.conf
+  ansible.builtin.file:
+    path: "{{ crio_config_path }}"
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart CRI-O service

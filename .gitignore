@@ -1,3 +1,7 @@
 __pycache__/
 .env
 y_lapshina.yaml
+.vscode
+.ansible
+.vagrant
+ansible/inventory_vagrant.yml
