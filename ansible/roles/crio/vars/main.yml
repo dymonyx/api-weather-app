@@ -1,0 +1,6 @@
+crio_gpg_key: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ crio_version }}/deb/Release.key"
+crio_keyrings_path: /etc/apt/keyrings
+crio_apt_key_asc_path: /etc/apt/keyrings/cri-o-apt-keyring.asc
+crio_apt_key_gpg_path: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+crio_repo: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ crio_version }}/deb/"
+crio_config_path: /etc/crio/crio.conf

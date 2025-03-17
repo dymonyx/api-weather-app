@@ -1,0 +1,10 @@
+---
+- name: Install CRI-O and k8s utils on Ubuntu hosts
+  hosts: kube_servers
+  roles:
+    - role: crio
+      become: true
+    - role: prepare_k8s
+      become: true
+    - role: k8s
+      become: true
