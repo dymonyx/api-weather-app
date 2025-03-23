@@ -158,3 +158,27 @@ reload kubelet:
 ```
 sudo systemctl restart kubelet
 ```
+
+### **Helpful commands**
+get info about cluster:
+```
+sudo kubectl cluster-info
+```
+
+create busybox pod and enter to it:
+```
+sudo kubectl run busybox --image=busybox:1.35 --restart=Never --command -- sleep 3600
+```
+```
+sudo kubectl get pod busybox -o wide
+```
+```
+sudo kubectl exec -it busybox -- sh
+```
+
+delete busybox pod:
+```
+sudo kubectl delete pod busybox
+```
+### **Proof of Pod Network Functionality**
+![img1](img/image1.png)
