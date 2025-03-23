@@ -1,7 +1,15 @@
+- name: Check if CRI-O config exists and is non-empty
+  ansible.builtin.stat:
+    path: "{{ crio_config_path }}"
+  register: crio_config_stat
+
 - name: Ensure CRI-O config exist
   ansible.builtin.shell:
-    cmd: "set -o pipefail crio config | tee {{ crio_config_path }} > /dev/null"
-    creates: "{{ crio_config_path }}"
+    cmd: "set -o pipefail && crio config | sudo tee {{ crio_config_path }} > /dev/null"
+    executable: /bin/bash
+  become: true
+  when: not (crio_config_stat.stat.exists and crio_config_stat.stat.size > 0)
+  changed_when: true # разве нужно?
   notify: Restart CRI-O service
 
 - name: Ensure correct permissions on crio.conf

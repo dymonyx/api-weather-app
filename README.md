@@ -84,7 +84,7 @@ For other options of download, follow this [instruction](https://dunaevsky-ms.ru
 
 `vagrant up`
 
-**Important**: change ansible/inventory.yml if you want to use vagrant vm
+### **Important**: change ansible/inventory.yml if you want to use vagrant vm
 
 `inventory.yml` for ansible can be like this:
 ```
@@ -114,4 +114,47 @@ kube_servers:
     ansible_ssh_private_key_file: ~/.vagrant.d/insecure_private_key
     ansible_python_interpreter: /usr/bin/python3
 
+```
+### **How to connect to vm with ssh?**
+- `vagrant ssh <name of bm, e.g. app1>`
+
+### **Warning: Release file is not valid**
+```
+[WARNING]: Failed to update cache after 5 retries due to E:Release file for http://security.ubuntu.com/ubuntu/dists/jammy-security/InRelease is not valid yet (invalid for another 10min 15s). Updates for this repository will not be applied.
+```
+
+fix:
+```
+sudo timedatectl set-ntp off
+sudo timedatectl set-ntp on
+```
+check with: `date`
+## Ansible
+### **How to use?**
+
+- `cd ansible/`
+
+- `ansible-playbook --ask-pass playbook.yml`
+
+## K8s
+### **How to reinit k8s cluster?**
+```
+sudo kubeadm reset -f
+sudo rm -rf /etc/kubernetes/
+sudo rm -rf /var/lib/etcd
+sudo systemctl restart kubelet
+```
+
+### **How to change INTERNAL-IP**
+```
+sudo nano /etc/default/kubelet
+```
+change this param:
+```
+KUBELET_EXTRA_ARGS=--node-ip=192.168.56.2
+```
+
+reload kubelet:
+```
+sudo systemctl restart kubelet
 ```

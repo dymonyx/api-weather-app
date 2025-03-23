@@ -1,3 +1,5 @@
-# SPDX-License-Identifier: MIT-0
----
-# handlers file for k8s
+- name: Restart Kubelet service
+  ansible.builtin.systemd:
+    name: kubelet
+    state: restarted
+    enabled: true
