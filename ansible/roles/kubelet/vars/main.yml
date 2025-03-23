@@ -1,0 +1,3 @@
+kubelet_config_path: /etc/default/kubelet
+kubelet_runtime_config_path: /var/lib/kubelet/config.yaml
+kubelet_runtime_socket: unix:///var/run/crio/crio.sock

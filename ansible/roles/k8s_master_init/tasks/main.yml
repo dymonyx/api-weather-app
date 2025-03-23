@@ -1,0 +1,29 @@
+- name: Initialize Kubernetes cluster using kubeadm
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init
+      --pod-network-cidr={{ k8s_master_init_pod_cidr }}
+      --service-cidr={{ k8s_master_init_service_cidr }}
+      --apiserver-advertise-address={{ ansible_ens3.ipv4.address }}
+    creates: "{{ k8s_master_init_admin_config_path }}"
+  register: kubeadm_init_result # ansible_enp0s8
+
+- name: Save kubeadm init stdout to a log file
+  ansible.builtin.copy:
+    content: "{{ kubeadm_init_result.stdout }}"
+    dest: "{{ k8s_master_init_log_path }}"
+    mode: '0644'
+
+- name: Create kube config directory
+  ansible.builtin.file:
+    path: "{{ k8s_master_init_kube_dir }}"
+    mode: "0700"
+    state: directory
+
+- name: Copy admin kubeconfig to root directory
+  ansible.builtin.copy:
+    src: "{{ k8s_master_init_admin_config_path }}"
+    dest: "{{ k8s_master_init_kubeconfig_dest }}"
+    remote_src: true
+    mode: "0600"
+    backup: true
