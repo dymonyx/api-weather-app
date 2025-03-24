@@ -1,0 +1,1 @@
+prepare_k8s_modules_config_path: /etc/modules-load.d/k8s.conf

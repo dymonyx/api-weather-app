@@ -1,10 +1,37 @@
----
-- name: Install CRI-O and k8s utils on Ubuntu hosts
+- name: Prepare all nodes (install CRI-O, k8s packages)
   hosts: kube_servers
+  become: true
   roles:
     - role: crio
-      become: true
     - role: prepare_k8s
-      become: true
-    - role: k8s
-      become: true
+    - role: k8s_utils
+
+- name: Initialize the k8s master node and create join command for workers
+  hosts: master
+  become: true
+  roles:
+    - role: k8s_master_init
+
+- name: Configure kubelet
+  hosts: kube_servers
+  become: true
+  roles:
+    - role: kubelet
+
+- name: Create join command for workers
+  hosts: master
+  become: true
+  roles:
+    - role: k8s_prepare_join
+
+- name: Join worker nodes to the k8s cluster
+  hosts: worker
+  become: true
+  roles:
+    - role: k8s_join
+
+- name: Deploy Calico on the master
+  hosts: master
+  become: true
+  roles:
+    - role: calico

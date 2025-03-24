@@ -1,0 +1,11 @@
+- name: Restart Kubelet service
+  ansible.builtin.systemd:
+    name: kubelet
+    state: restarted
+    enabled: true
+
+- name: Restart CRI-O service
+  ansible.builtin.systemd:
+    name: crio
+    state: restarted
+    enabled: true

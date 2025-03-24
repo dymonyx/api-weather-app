@@ -1,0 +1,34 @@
+- name: Ensure existence of custom-resources.yaml
+  ansible.builtin.stat:
+    path: "{{ calico_custom_resources_path }}"
+  register: custom_resources
+
+- name: Get custom-resources.yaml
+  ansible.builtin.get_url:
+    url: "{{ calico_custom_resources_url }}"
+    dest: "{{ calico_custom_resources_path }}"
+    mode: '0644'
+    force: false
+  when: not custom_resources.stat.exists
+
+- name: Check if CIDR is already set to `calico_cidr`
+  ansible.builtin.command: 'grep "cidr: {{ calico_cidr }}" {{ calico_custom_resources_path }}'
+  register: cidr_check
+  failed_when: false
+  changed_when: false
+
+- name: Change custom-resources.yaml
+  ansible.builtin.lineinfile:
+    path: "{{ calico_custom_resources_path }}"
+    regexp: '^\s*cidr:.*'
+    line: '      cidr: {{ calico_cidr }}'
+    state: present
+  become: true
+  when: cidr_check.rc != 0
+
+- name: Deploy custom-resources.yaml
+  ansible.builtin.command: >
+    kubectl create -f {{ calico_custom_resources_path }}
+  register: custom_resources_create
+  failed_when: custom_resources_create.rc != 0 and ('AlreadyExists' not in custom_resources_create.stderr)
+  changed_when: "'created' in custom_resources_create.stdout"

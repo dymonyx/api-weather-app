@@ -1,0 +1,45 @@
+- name: Get kubeadm token list
+  ansible.builtin.command: kubeadm token list
+  register: token_list
+  failed_when: false
+  changed_when: false
+
+- name: Check non expired tokens
+  ansible.builtin.set_fact:
+    valid_tokens: >-
+      {{ token_list.stdout_lines[1:] |
+         select("search", "authentication,signing") |
+         select("search", "system:bootstrappers:kubeadm:default-node-token") |
+         map('split') |
+         map('first') |
+         list }}
+
+- name: Set flag of existing non expired token
+  ansible.builtin.set_fact:
+    has_valid_token: "{{ valid_tokens | length > 0 }}"
+
+# - name: Show valid_tokens
+#   ansible.builtin.debug:
+#     var: valid_tokens
+
+- name: Set existing_token
+  ansible.builtin.set_fact:
+    existing_token: "{{ valid_tokens[0] }}"
+  when: has_valid_token
+
+# - name: Show existing_token
+#   ansible.builtin.debug:
+#     var: existing_token
+
+- name: Get hash of CA
+  ansible.builtin.shell: |
+    set -o pipefail
+    openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
+    | openssl rsa -pubin -outform der 2>/dev/null \
+    | openssl dgst -sha256 -hex \
+    | sed 's/^.* //'
+  args:
+    executable: /bin/bash
+  register: ca_cert_hash
+  changed_when: false
+  when: has_valid_token

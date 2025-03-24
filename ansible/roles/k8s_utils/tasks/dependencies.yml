@@ -1,0 +1,11 @@
+---
+- name: Ensure dependencies are installed
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    update_cache: true
+    state: present
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gpg

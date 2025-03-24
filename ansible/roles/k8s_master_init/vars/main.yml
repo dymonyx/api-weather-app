@@ -1,0 +1,4 @@
+k8s_master_init_admin_config_path: /etc/kubernetes/admin.conf
+k8s_master_init_kubeconfig_dest: /root/.kube/config
+k8s_master_init_log_path: /root/kubeadm-init.log
+k8s_master_init_kube_dir: /root/.kube
