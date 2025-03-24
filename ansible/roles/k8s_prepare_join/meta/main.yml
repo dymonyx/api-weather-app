@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: julia lapshina
+  description: create join command for workers
+  license: license idk
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy  # 22.04
+        - noble  # 24.04
+  min_ansible_version: "2.1"
+
+  galaxy_tags:
+    - k8s
+
+dependencies: []

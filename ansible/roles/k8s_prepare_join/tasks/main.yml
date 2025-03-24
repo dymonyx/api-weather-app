@@ -1,0 +1,6 @@
+---
+- name: Get token for join command
+  ansible.builtin.import_tasks: get_tokens.yml
+
+- name: Create join command for wokers
+  ansible.builtin.import_tasks: create_join_command.yml

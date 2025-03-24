@@ -1,0 +1,8 @@
+- name: Share kubeadm_join_cmd_final from master to all nodes
+  ansible.builtin.set_fact:
+    kubeadm_join_cmd_final: "{{ hostvars[groups['master'][0]]['kubeadm_join_cmd_final'] }}"
+
+- name: Join workers to cluster
+  ansible.builtin.command: "{{ kubeadm_join_cmd_final }}"
+  args:
+    creates: "{{ k8s_join_kubelet_config }}"

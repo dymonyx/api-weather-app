@@ -1,0 +1,6 @@
+- name: Deploy Tigera Operator for Calico
+  ansible.builtin.command: >
+    kubectl create -f {{ calico_tigera_operator_url }}
+  register: tigera_create
+  failed_when: tigera_create.rc != 0 and ('AlreadyExists' not in tigera_create.stderr)
+  changed_when: "'created' in tigera_create.stdout"

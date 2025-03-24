@@ -1,0 +1,6 @@
+---
+- name: Deploy Tigera Operator for Calico
+  ansible.builtin.import_tasks: tigera_operator.yml
+
+- name: Configure and change custom resources
+  ansible.builtin.import_tasks: custom_resources.yml

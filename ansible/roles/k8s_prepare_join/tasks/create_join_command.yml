@@ -1,0 +1,29 @@
+- name: Set master IP on master
+  ansible.builtin.set_fact:
+    master_ip: "{{ ansible_ens3.ipv4.address }}" # ansible_enp0s8
+  when: has_valid_token
+
+- name: Create kubeadm join command
+  ansible.builtin.set_fact:
+    kubeadm_join_cmd: >-
+      kubeadm join {{ master_ip }}:6443
+      --token {{ existing_token }}
+      --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }}
+  when: has_valid_token
+
+- name: Create new token and kubeadm join command
+  ansible.builtin.command: kubeadm token create --print-join-command
+  register: kubeadm_join_cmd_output
+  when: not has_valid_token
+  changed_when: true
+
+- name: Structure join command into one variable
+  ansible.builtin.set_fact:
+    kubeadm_join_cmd_final: >-
+      {{ kubeadm_join_cmd
+          if has_valid_token
+          else kubeadm_join_cmd_output.stdout }}
+
+- name: Show kubeadm join command
+  ansible.builtin.debug:
+    var: kubeadm_join_cmd_final
