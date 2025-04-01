@@ -1,5 +1,0 @@
-k8s_gpg_key: "https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/Release.key"
-k8s_keyrings_path: /etc/apt/keyrings
-k8s_apt_key_asc_path: //etc/apt/keyrings/kubernetes-apt-keyring.asc
-k8s_apt_key_gpg_path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-k8s_repo: "https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/"
