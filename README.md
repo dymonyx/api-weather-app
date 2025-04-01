@@ -136,7 +136,7 @@ check with: `date`
 
 - `ansible-playbook --ask-pass playbook.yml`
 
-## K8s
+## K8s init cluster and CNI Calico
 ### **How to reinit k8s cluster?**
 ```
 sudo kubeadm reset -f
@@ -184,3 +184,202 @@ sudo kubectl delete pod busybox
 ```
 ### **Proof of Pod Network Functionality**
 ![img1](img/image1.png)
+
+## K8s cluster deployment
+
+install helm: *[helm docs](https://helm.sh/docs/intro/install/)*
+
+```
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
+
+install cert-manager: *[ingress-nginx and cert-manager docs](https://cert-manager.io/docs/tutorials/acme/nginx-ingress/)*
+
+install ingress-nginx:
+
+```
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --set controller.service.type=LoadBalancer
+```
+
+<!-- ```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx --create-namespace \
+  --set controller.service.type=ClusterIP \
+  --set controller.hostPort.enabled=true \
+  --set controller.hostPort.http=8001 \
+  --set controller.hostPort.https=8443
+
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx --create-namespace \
+  --set controller.kind=DaemonSet \
+  --set controller.service.type=ClusterIP \
+  --set controller.hostPort.enabled=true \
+  --set controller.hostPort.http=8001 \
+  --set controller.hostPort.https=8443
+
+
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --set controller.kind=DaemonSet \
+  --set controller.daemonset.useHostPort=true \
+  --set controller.hostPort.enabled=true \
+  --set controller.hostPort.http=8001 \
+  --set controller.hostPort.https=8443 \
+  --set controller.containerPort.http=80 \
+  --set controller.containerPort.https=443 \
+  --set controller.service.type="" \
+  --set controller.ingressClassResource.name=nginx \
+  --set controller.ingressClass=nginx
+
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  -f ingress-values.yml \
+  --namespace ingress-nginx
+``` -->
+
+make secrets:
+```
+kubectl create secret generic weather-secrets \
+  --from-literal=API_KEY=your-super-secret-key \
+  --from-literal=VERSION=v1.0
+```
+
+### metalb
+install metallb:
+
+```
+helm install metallb metallb/metallb \
+  -n metallb-system \
+  --create-namespace
+```
+
+apply metallb-config (and other yml's):
+
+```
+kubectl apply -f metalb-config.yml
+```
+
+### internal server error (can't resolve dns)
+
+edit dns at coredns config:
+
+```
+kubectl edit configmap coredns -n kube-system
+```
+
+```
+forward . /etc/resolv.conf {
+   max_concurrent 1000
+}
+```
+
+change to
+
+```
+forward . 8.8.8.8 {
+   max_concurrent 1000
+}
+```
+
+```
+kubectl rollout restart deployment coredns -n kube-system
+```
+
+enable Always instead of CrossSubnet VXLAN:
+
+```
+kubectl patch ippool default-ipv4-ippool --type=merge -p '{"spec":{"vxlanMode":"Always"}}'
+```
+### checks
+
+check availability `api-weather-service`:
+
+```
+kubectl port-forward service/api-weather-service 8080:8080
+```
+
+check availability `aingress-nginx`:
+
+```
+kubectl port-forward ingress-nginx-controller-5b7485d6cc-756ks 8080:80 -n ingress-nginx
+```
+
+check on nodes:
+
+```
+curl http://www.dymonyx.ru/info | jq
+```
+
+or
+
+```
+curl -H "Host: www.dymonyx.ru" http://178.170.242.27/info | jq
+```
+
+or check on host out of cluster by ssh:
+
+
+```
+ssh -L 8080:178.170.242.27:80 root@178.170.242.27 -p 2201 -N
+```
+
+```
+curl -H "Host: www.dymonyx.ru" http://localhost:8080/info | jq
+```
+
+
+<!-- ??????????????????/
+  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+  -n ingress-nginx \
+  --create-namespace \
+  --set controller.service.type=LoadBalancer \
+  --set controller.service.externalTrafficPolicy=Local \
+  --set controller.nodeSelector."ingress-ready"=true \
+  --set controller.replicaCount=1
+
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  -n ingress-nginx \
+  --create-namespace \
+  -f ingress-values-lb.yml
+?????????????
+
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  -n ingress-nginx \
+  --set controller.service.type=LoadBalancer \
+  --set controller.service.externalTrafficPolicy=Local \
+  --set controller.service.ports.http=80 \
+  --set controller.service.ports.https=443
+
+ip addr add 178.170.242.27/32 dev ens3 на каждой ноде
+
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  --set controller.service.type=NodePort \
+  --set controller.service.externalTrafficPolicy=Cluster -->
+
+### error when `kubectl apply -f metalb-config.yml`
+
+***Error from server (InternalError): error when creating "metalb-config.yml": Internal error occurred: failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io": failed to call webhook: Post "https://metallb-webhook-service.metallb-system.svc:443/validate-metallb-io-v1beta1-ipaddresspool?timeout=10s": context deadline exceeded***
+
+fix:
+
+```
+helm uninstall metallb -n metallb-system
+kubectl delete namespace metallb-system
+```
+
+```
+helm install metallb metallb/metallb \
+  --namespace metallb-system \
+  --create-namespace \
+  --set frr.enabled=false \
+  --set speaker.frr.enabled=false
+```
