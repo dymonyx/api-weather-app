@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: www.dymonyx.ru
+    http:
+      paths:
+      - path: /info/weather
+        pathType: Prefix
+        backend:
+          service:
+            name: api-weather-service
+            port:
+              number: 80
+      - path: /info
+        pathType: Exact
+        backend:
+          service:
+            name: api-weather-service
+            port:
+              number: 80

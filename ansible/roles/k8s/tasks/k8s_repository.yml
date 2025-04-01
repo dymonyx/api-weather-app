@@ -1,7 +1,0 @@
----
-- name: Add k8s repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ k8s_apt_key_gpg_path }}] {{ k8s_repo }} /"
-    filename: "kubernetes.list"
-    state: present
-    update_cache: true
