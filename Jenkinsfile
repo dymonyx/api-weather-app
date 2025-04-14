@@ -39,17 +39,15 @@ node {
         }
     }
     stage('Deploy to Dev') {
-        steps {
-            withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
-                sh '''
-                    echo "$KUBE_B64" | base64 -d > kubeconfig
-                    export KUBECONFIG=$(pwd)/kubeconfig
-                    kubectl apply -n dev -f k8s_deploy/dev/
-                    kubectl rollout restart deployment api-weather -n dev
-                    kubectl rollout status deployment api-weather -n dev
-                    rm kubeconfig
-                '''
-            }
+        withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
+            sh '''
+                echo "$KUBE_B64" | base64 -d > kubeconfig
+                export KUBECONFIG=$(pwd)/kubeconfig
+                kubectl apply -n dev -f k8s_deploy/dev/
+                kubectl rollout restart deployment api-weather -n dev
+                kubectl rollout status deployment api-weather -n dev
+                rm kubeconfig
+            '''
         }
     }
     stage('Smoke test (dev)') {
@@ -81,8 +79,7 @@ node {
         }
     }
     stage('Deploy to Prod') {
-        when { expression { return params.DEPLOY_TO_PROD } }
-        steps {
+        if (params.DEPLOY_TO_PROD) {
             withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
                 sh '''
                     echo "$KUBE_B64" | base64 -d > kubeconfig
@@ -96,8 +93,7 @@ node {
         }
     }
     stage('Smoke test (prod)') {
-        when { expression { return params.DEPLOY_TO_PROD } }
-        steps {
+        if (params.DEPLOY_TO_PROD) {
             String url = 'http://www.dymonyx.ru/info'
             String result = sh(script: "curl -s ${url} | jq -r '.service'", returnStdout: true).trim()
             if (result != 'weather') {
@@ -106,8 +102,7 @@ node {
         }
     }
     stage('Get Weather Test (prod)') {
-        when { expression { return params.DEPLOY_TO_PROD } }
-        steps {
+        if (params.DEPLOY_TO_PROD) {
             String url = 'http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
             String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
 
@@ -130,3 +125,4 @@ node {
         }
     }
 }
+
