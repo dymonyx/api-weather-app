@@ -1,10 +1,17 @@
+properties([
+    parameters([
+        booleanParam(name: 'DEPLOY_TO_PROD', defaultValue: false, description: 'Do you want to deploy to prod?')
+    ])
+])
+
+
 node {
     stage('Checkout') {
         checkout scm
     }
     stage('Dockerfile Lint') {
         sh 'docker run --rm -v $(pwd):/mnt hadolint/hadolint:latest-debian hadolint /mnt/Dockerfile | tee hadolint_lint.txt'
-        def hadolintResult = sh(script: 'test -s hadolint_lint.txt', returnStatus: true)
+        int hadolintResult = sh(script: 'test -s hadolint_lint.txt', returnStatus: true)
         if (hadolintResult == 0) {
             currentBuild.result = 'UNSTABLE'
             archiveArtifacts artifacts: 'hadolint_lint.txt', allowEmptyArchive: true
@@ -29,6 +36,97 @@ node {
             'DockerHub: agoneek/api-weather</a><br>' +
             'Command for pulling latest image: <br> ' +
             '<code>docker pull agoneek/api-weather:latest</code>'
+        }
+    }
+    stage('Deploy to Dev') {
+        steps {
+            withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
+                sh '''
+                    echo "$KUBE_B64" | base64 -d > kubeconfig
+                    export KUBECONFIG=$(pwd)/kubeconfig
+                    kubectl apply -n dev -f k8s_deploy/dev/
+                    kubectl rollout restart deployment api-weather -n dev
+                    kubectl rollout status deployment api-weather -n dev
+                    rm kubeconfig
+                '''
+            }
+        }
+    }
+    stage('Smoke test (dev)') {
+        String url = 'http://dev.dymonyx.ru/info'
+        String result = sh(script: "curl -s ${url} | jq -r '.service'", returnStdout: true).trim()
+        if (result != 'weather') {
+            error "Dev test failed: expected 'weather', got '${result}'"
+        }
+    }
+    stage('Get Weather Test (dev)') {
+        String url = 'http://dev.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
+        String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
+
+        String expected = '''
+            {
+            "service": "weather",
+            "data": {
+                "temperature_c": {
+                "average": -4.12,
+                "median": -3,
+                "min": -11,
+                "max": -0.9
+                }
+            }
+            }
+            '''
+        if (result != expected.trim()) {
+            error "Dev API answer doesn\'t match with Saint-P answer"
+        }
+    }
+    stage('Deploy to Prod') {
+        when { expression { return params.DEPLOY_TO_PROD } }
+        steps {
+            withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
+                sh '''
+                    echo "$KUBE_B64" | base64 -d > kubeconfig
+                    export KUBECONFIG=$(pwd)/kubeconfig
+                    kubectl apply -n default -f k8s_deploy/default/
+                    kubectl rollout restart deployment api-weather -n default
+                    kubectl rollout status deployment api-weather -n default
+                    rm kubeconfig
+                '''
+            }
+        }
+    }
+    stage('Smoke test (prod)') {
+        when { expression { return params.DEPLOY_TO_PROD } }
+        steps {
+            String url = 'http://www.dymonyx.ru/info'
+            String result = sh(script: "curl -s ${url} | jq -r '.service'", returnStdout: true).trim()
+            if (result != 'weather') {
+                error "Prod test failed: expected 'weather', got '${result}'"
+            }
+        }
+    }
+    stage('Get Weather Test (prod)') {
+        when { expression { return params.DEPLOY_TO_PROD } }
+        steps {
+            String url = 'http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
+            String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
+
+            String expected = '''
+                {
+                "service": "weather",
+                "data": {
+                    "temperature_c": {
+                    "average": -4.12,
+                    "median": -3,
+                    "min": -11,
+                    "max": -0.9
+                    }
+                }
+                }
+                '''
+            if (result != expected.trim()) {
+                error "Prod API answer doesn\'t match with Saint-P answer"
+            }
         }
     }
 }
