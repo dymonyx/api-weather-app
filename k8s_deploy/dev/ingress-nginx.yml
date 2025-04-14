@@ -13,7 +13,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: api-weather-service
+            name: api-weather-service-dev
             port:
               number: 80
       - path: /info
