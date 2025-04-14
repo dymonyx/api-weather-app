@@ -43,9 +43,12 @@ node {
             sh '''
                 echo "$KUBE_B64" | base64 -d > kubeconfig
                 export KUBECONFIG=$(pwd)/kubeconfig
-                kubectl apply -n dev -f k8s_deploy/dev/
+                kubectl apply -n dev -f k8s_deploy/dev/api-weather-deployment.yml
                 kubectl rollout restart deployment api-weather -n dev
                 kubectl rollout status deployment api-weather -n dev
+                kubectl apply -n dev -f k8s_deploy/dev/service.yml
+                kubectl apply -n ingress-nginx -f k8s_deploy/dev/ingress-nginx.yml
+                kubectl apply -n metallb-system -f k8s_deploy/dev/metalb-config.yml
                 rm kubeconfig
             '''
         }
@@ -84,9 +87,12 @@ node {
                 sh '''
                     echo "$KUBE_B64" | base64 -d > kubeconfig
                     export KUBECONFIG=$(pwd)/kubeconfig
-                    kubectl apply -n default -f k8s_deploy/default/
+                    kubectl apply -n default -f k8s_deploy/default/api-weather-deployment.yml
                     kubectl rollout restart deployment api-weather -n default
                     kubectl rollout status deployment api-weather -n default
+                    kubectl apply -n default -f k8s_deploy/default/service.yml
+                    kubectl apply -n ingress-nginx -f k8s_deploy/default/ingress-nginx.yml
+                    kubectl apply -n metallb-system -f k8s_deploy/default/metalb-config.yml
                     rm kubeconfig
                 '''
             }
