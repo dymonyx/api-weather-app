@@ -81,23 +81,23 @@ node {
     //         error "Dev API answer doesn\'t match with Saint-P answer"
     //     }
     // }
-    stage('Deploy to Prod') {
-        if (params.DEPLOY_TO_PROD) {
-            withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
-                sh '''
-                    echo "$KUBE_B64" | base64 -d > kubeconfig
-                    export KUBECONFIG=$(pwd)/kubeconfig
-                    kubectl apply -n default -f k8s_deploy/default/api-weather-deployment.yml
-                    kubectl rollout restart deployment api-weather-deployment -n default
-                    kubectl rollout status deployment api-weather-deployment -n default
-                    kubectl apply -n default -f k8s_deploy/default/service.yml
-                    kubectl apply -n ingress-nginx -f k8s_deploy/default/ingress-nginx.yml
-                    kubectl apply -n metallb-system -f k8s_deploy/default/metalb-config.yml
-                    rm kubeconfig
-                '''
-            }
-        }
-    }
+    // stage('Deploy to Prod') {
+    //     if (params.DEPLOY_TO_PROD) {
+    //         withCredentials([string(credentialsId: 'KUBECONFIG_BASE64', variable: 'KUBE_B64')]) {
+    //             sh '''
+    //                 echo "$KUBE_B64" | base64 -d > kubeconfig
+    //                 export KUBECONFIG=$(pwd)/kubeconfig
+    //                 kubectl apply -n default -f k8s_deploy/default/api-weather-deployment.yml
+    //                 kubectl rollout restart deployment api-weather-deployment -n default
+    //                 kubectl rollout status deployment api-weather-deployment -n default
+    //                 kubectl apply -n default -f k8s_deploy/default/service.yml
+    //                 kubectl apply -n ingress-nginx -f k8s_deploy/default/ingress-nginx.yml
+    //                 kubectl apply -n metallb-system -f k8s_deploy/default/metalb-config.yml
+    //                 rm kubeconfig
+    //             '''
+    //         }
+    //     }
+    // }
     stage('Smoke test (prod)') {
         if (params.DEPLOY_TO_PROD) {
             String url = 'http://www.dymonyx.ru/info'
