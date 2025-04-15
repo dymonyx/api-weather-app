@@ -17,7 +17,9 @@ def get_info():
     return {
         "version": VERSION,
         "service": "weather",
-        "author": "y.lapshina"
+        "author": "y.lapshina",
+        "date": datetime.today(),
+        "city": "Saint-Petersburg"
     }
 
 
