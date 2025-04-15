@@ -115,19 +115,17 @@ node {
             String url = "http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20"
             String result = sh(script:"curl -s \"${url}\" | jq", returnStdout: true).trim()
             echo "Got response: '${result}'"
-            String expected = '''
-                {
+            String expected = '''{
                 "service": "weather",
                 "data": {
-                    "temperature_c": {
+                  "temperature_c": {
                     "average": -4.12,
                     "median": -3,
                     "min": -11,
                     "max": -0.9
-                    }
+                  }
                 }
-                }
-                '''
+              }'''
             if (result != expected.trim()) {
                 error "Prod API answer doesn\'t match with Saint-P answer"
             }
