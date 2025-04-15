@@ -112,8 +112,8 @@ node {
     stage('Get Weather Test (prod)') {
         if (params.DEPLOY_TO_PROD) {
             sh 'hostname'
-            String url = 'http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
-            String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
+            String url = "http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20"
+            String result = sh(script:"curl -s \"${url}\" | jq", returnStdout: true).trim()
             echo "Got response: '${result}'"
             String expected = '''
                 {
