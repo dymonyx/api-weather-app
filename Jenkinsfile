@@ -1,6 +1,6 @@
 properties([
     parameters([
-        booleanParam(name: 'DEPLOY_TO_PROD', defaultValue: false, description: 'Do you want to deploy to prod?')
+        booleanParam(name: 'DEPLOY_TO_PROD', defaultValue: true, description: 'Do you want to deploy to prod?') // поменять на false
     ])
 ])
 
@@ -100,6 +100,7 @@ node {
     // }
     stage('Smoke test (prod)') {
         if (params.DEPLOY_TO_PROD) {
+            sh 'hostname'
             String url = 'http://www.dymonyx.ru/info'
             String result = sh(script: "curl -s ${url} | jq -r '.service'", returnStdout: true).trim()
             echo "Got response: '${result}'"
