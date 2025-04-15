@@ -1,6 +1,6 @@
 properties([
     parameters([
-        booleanParam(name: 'DEPLOY_TO_PROD', defaultValue: true, description: 'Do you want to deploy to prod?') // поменять на false
+        booleanParam(name: 'DEPLOY_TO_PROD', defaultValue: false, description: 'Do you want to deploy to prod?')
     ])
 ])
 
@@ -111,6 +111,7 @@ node {
     }
     stage('Get Weather Test (prod)') {
         if (params.DEPLOY_TO_PROD) {
+            sh 'hostname'
             String url = 'http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
             String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
             echo "Got response: '${result}'"
