@@ -102,6 +102,7 @@ node {
         if (params.DEPLOY_TO_PROD) {
             String url = 'http://www.dymonyx.ru/info'
             String result = sh(script: "curl -s ${url} | jq -r '.service'", returnStdout: true).trim()
+            echo "Got response: '${result}'"
             if (result != 'weather') {
                 error "Prod test failed: expected 'weather', got '${result}'"
             }
@@ -111,7 +112,7 @@ node {
         if (params.DEPLOY_TO_PROD) {
             String url = 'http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
             String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
-
+            echo "Got response: '${result}'"
             String expected = '''
                 {
                 "service": "weather",
