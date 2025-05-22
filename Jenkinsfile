@@ -60,7 +60,7 @@ node {
     //         error "Dev test failed: expected 'weather', got '${result}'"
     //     }
     // }
-    // stage('Get Weather Test (dev)') {
+    // stage('Get Weather Test (dev)') { // переписать тесты как в проде
     //     String url = 'http://dev.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20'
     //     String result = sh(script:"curl -s ${url} | jq", returnStdout: true).trim()
 
