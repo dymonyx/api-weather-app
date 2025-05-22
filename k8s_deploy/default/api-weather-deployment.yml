@@ -6,6 +6,11 @@ metadata:
     app: api-weather
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: api-weather
@@ -17,7 +22,7 @@ spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 80
+            - weight: 100
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
@@ -29,6 +34,7 @@ spec:
       containers:
         - name: api-weather
           image: docker.io/agoneek/api-weather:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:

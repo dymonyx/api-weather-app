@@ -317,12 +317,14 @@ check on nodes:
 
 ```
 curl http://www.dymonyx.ru/info | jq
+curl -s "http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20" | jq
 ```
 
 or
 
 ```
 curl -H "Host: www.dymonyx.ru" http://178.170.242.27/info | jq
+curl -s -H "Host: www.dymonyx.ru" "http://178.170.242.27/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20" | jq
 ```
 
 or check on host out of cluster by ssh:
@@ -383,3 +385,105 @@ helm install metallb metallb/metallb \
   --set frr.enabled=false \
   --set speaker.frr.enabled=false
 ```
+
+### if pods crash (maybe after some config changes)
+```
+systemctl restart kubelet
+systemctl restart crio
+```
+
+## CI-CD
+if you haven't enough RAM:
+
+- use [swap](https://kubernetes.io/blog/2023/08/24/swap-linux-beta/)
+- edit `/var/lib/kubelet/config.yaml` (ensure that you have only one memorySwap parameter):
+```
+failSwapOn: false
+memorySwap:
+  swapBehavior: NoSwap
+evictionHard:
+  memory.available: "300Mi"
+systemReserved:
+  memory: "300Mi"
+```
+- create a swap file (e.g. 4GB) and turn swap on
+
+```
+dd if=/dev/zero of=/swapfile bs=128M count=32
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+swapon -s
+```
+- to start the swap file at boot time, add line like `/swapfile swap swap defaults 0 0` to `/etc/fstab` file.
+
+- reserve memory at Linux kernel level (300MB):
+
+```
+echo "vm.min_free_kbytes = 307200" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+```
+
+```
+nano /etc/systemd/system/jenkins.service.d/override.conf
+```
+
+### kubelet is running but `kubectl get nodes` causes error
+
+***E0411 07:22:55.959390  346795 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"https://10.0.0.2:6443/api?timeout=32s\": dial tcp 10.0.0.2:6443: connect: connection refused"***
+
+```
+mkdir -p /run/systemd/resolve
+ln -sf /etc/resolv.conf /run/systemd/resolve/resolv.conf
+```
+
+### add domen for dev environment
+`nano /etc/hosts`
+
+add:
+`178.170.242.27   dev.dymonyx.ru www.dymonyx.ru`
+
+### fault tolerant ingress-controllers upgrade
+
+```
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --set controller.replicaCount=2 \
+  --set controller.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight=100 \
+  --set controller.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey="kubernetes.io/hostname" \
+  --set controller.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].key="app.kubernetes.io/name" \
+  --set controller.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].operator="In" \
+  --set controller.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values[0]="ingress-nginx"
+  <!-- --set controller.scope.enabled=false
+  --set controller.service.externalTrafficPolicy=Local \ -->
+```
+
+make secrets for dev ns:
+```
+kubectl create secret generic weather-secrets \
+  --from-literal=API_KEY=your-super-secret-key \
+  --from-literal=VERSION=v1.0
+  -n dev
+```
+
+## Demo
+check app pods:
+
+```
+kubectl get pods -o wide
+```
+check app availability:
+
+```
+curl http://www.dymonyx.ru/info | jq
+curl -s "http://www.dymonyx.ru/info/weather?city=Saint-Petersburg&date_from=2024-02-19&date_to=2024-02-20" | jq
+```
+
+get config for show probes:
+
+```
+kubectl get deployment api-weather-deployment -o yaml
+```
+CI/CD (unfortunately, only for prod test, but the whole pipeline available in Jenkinsfile):
+
+![Jenkins pipeline tests](img/image.png)
