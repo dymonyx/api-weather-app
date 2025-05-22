@@ -26,16 +26,16 @@ echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
 Jenkins Dashboard → Manage Jenkins → Manage Credentials → Global credentials.
 Add dockerhub credential.
 
-![img1](Jenkins_doc/img/image1.png)
+![img1](img/image1.png)
 
 ### Creating a Jenkins Pipeline and Integrating with GitLab
 Jenkins Dashboard → Click New Item → Multibranch Pipeline. Name pipeline (e.g., api-weather), and click OK.
 
-![img2](Jenkins_doc/img/image2.png)
+![img2](img/image2.png)
 
 Conncet to your GitLab project URL (create some tokens).
 
-![img3](Jenkins_doc/img/image3.png)
+![img3](img/image3.png)
 
 ### Add Jenkinsfile to your project
 Jenkinsfile can be like this:
@@ -79,41 +79,41 @@ node {
 ### Example of a Successful Job
 Stage view.
 
-![img4](Jenkins_doc/img/image4.png)
+![img4](img/image4.png)
 
 Successful Job has mark ✅.
 
-![img5](Jenkins_doc/img/image5.png)
+![img5](img/image5.png)
 
 Pipeline overview. Successful Job passed all the stages.
 
-![img6](Jenkins_doc/img/image6.png)
+![img6](img/image6.png)
 ### Example of an Unstable Job
 Unstable job - one of stage fell but it's only unstable status. Also we have artifact archive.
 
-![img7](Jenkins_doc/img/image7.png)
+![img7](img/image7.png)
 
 Stage view.
 
-![img8](Jenkins_doc/img/image8.png)
+![img8](img/image8.png)
 ### Example of a Failed Job
 Stage Docker Push fell because of invalid command.
 
-![img9](Jenkins_doc/img/image9.png)
+![img9](img/image9.png)
 ### Jenkins Plugins
 Manage Jenkins → Plugins.
 
 Gitlab Branch Source.
 
-![img10](Jenkins_doc/img/image10.png)
+![img10](img/image10.png)
 
 Pipeline: Stage View.
 
-![img11](Jenkins_doc/img/image11.png)
+![img11](img/image11.png)
 ### Gitlab
 Gitlab integration with Jenkins.
 
-![img12](Jenkins_doc/img/image12.png)
+![img12](img/image12.png)
 
 ### Helpful Links
 - [dockerhub image agoneek/api-weather](https://hub.docker.com/r/agoneek/api-weather/tags)
